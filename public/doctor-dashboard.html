@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Doctor Dashboard — MediConnect</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#f1f5f9;--white:#fff;--blue:#4F6EF7;--blue-dark:#3d5ce8;--teal:#14b8a6;--teal-dark:#0f9688;--text:#0f172a;--text-mid:#475569;--text-muted:#94a3b8;--border:#e2e8f0;--green:#16a34a;--red:#dc2626}
+    html{font-size:16px}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    body.high-contrast{--bg:#000!important;--white:#111!important;--text:#fff!important;--text-mid:#eee!important;--text-muted:#ccc!important;--border:#555!important;--blue:#6fa3ff!important;--teal:#2de0cd!important}
+    nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+    .nav-logo{display:flex;align-items:center;gap:10px;font-size:1.0625rem;font-weight:700;text-decoration:none;color:var(--text)}
+    .nav-logo-icon{width:34px;height:34px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+    .nav-right{display:flex;align-items:center;gap:8px}
+    .nav-link{font-size:0.875rem;color:var(--text-mid);text-decoration:none;font-weight:500;padding:6px 12px;border-radius:8px}
+    .nav-link:hover{color:var(--blue);background:var(--bg)}
+    .notif-bell{width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem}
+    .signout-btn{display:flex;align-items:center;gap:6px;font-size:0.875rem;color:var(--text-mid);background:none;border:none;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;padding:6px 12px;border-radius:8px}
+    .signout-btn:hover{color:var(--red);background:#fef2f2}
+    .a11y-bar{background:var(--white);border-bottom:1px solid var(--border);padding:6px 32px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .a11y-label{font-size:0.75rem;color:var(--text-muted);font-weight:500}
+    .a11y-group{display:flex;align-items:center;gap:5px}
+    .a11y-btn{padding:4px 11px;border:1px solid var(--border);border-radius:7px;background:var(--white);font-size:0.75rem;font-weight:600;cursor:pointer;color:var(--text-mid);font-family:'Inter',sans-serif;transition:all 0.15s}
+    .a11y-btn:hover{border-color:var(--blue);color:var(--blue)}
+    .a11y-size{font-size:0.75rem;color:var(--text-muted);min-width:32px;text-align:center}
+    .a11y-sep{width:1px;height:18px;background:var(--border);flex-shrink:0}
+    #google_translate_element select{font-size:0.75rem;font-family:'Inter',sans-serif;border:1px solid var(--border);border-radius:7px;padding:4px 8px;background:var(--white);color:var(--text-mid);cursor:pointer;outline:none}
+    .goog-te-banner-frame{display:none!important}
+    body{top:0!important}
+    .page{max-width:1200px;margin:0 auto;padding:28px 32px}
+    .doc-profile-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:24px 28px;margin-bottom:24px;display:flex;align-items:center;gap:20px}
+    .doc-big-avatar{width:72px;height:72px;border-radius:16px;background:var(--blue);color:white;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:800;flex-shrink:0}
+    .doc-profile-name{font-size:1.5rem;font-weight:800;margin-bottom:6px}
+    .doc-profile-meta{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+    .doc-meta-item{display:flex;align-items:center;gap:5px;font-size:0.8125rem;color:var(--text-muted)}
+    .doc-profile-right{margin-left:auto;flex-shrink:0}
+    .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+    .stat-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:22px 20px;text-align:center}
+    .stat-icon{font-size:1.375rem;margin-bottom:10px;color:var(--blue)}
+    .stat-num{font-size:1.875rem;font-weight:800;color:var(--text);line-height:1;margin-bottom:6px}
+    .stat-lab{font-size:0.8125rem;color:var(--text-muted);font-weight:500}
+    .section-tabs{display:flex;gap:4px;background:var(--bg);border-radius:10px;padding:4px;margin-bottom:20px;width:fit-content}
+    .stab{padding:8px 20px;border:none;border-radius:8px;font-size:0.875rem;font-weight:600;cursor:pointer;background:transparent;color:var(--text-muted);font-family:'Inter',sans-serif;transition:all 0.15s}
+    .stab.active{background:var(--white);color:var(--blue);box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+    .col-title{font-size:1.0625rem;font-weight:700;margin-bottom:16px}
+    /* Request cards */
+    .req-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:12px;transition:all 0.15s}
+    .req-card:hover{border-color:var(--blue);box-shadow:0 4px 14px rgba(0,0,0,0.06)}
+    .req-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
+    .req-avatar{width:42px;height:42px;border-radius:50%;background:var(--blue);color:white;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;flex-shrink:0}
+    .req-name{font-size:0.9375rem;font-weight:700;margin-bottom:3px}
+    .req-meta{font-size:0.8125rem;color:var(--text-muted)}
+    .req-actions{display:flex;gap:8px;margin-top:12px}
+    .accept-btn{flex:1;padding:10px;border:none;border-radius:10px;background:var(--blue);color:white;font-size:0.875rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s}
+    .accept-btn:hover{background:var(--blue-dark)}
+    .decline-btn{flex:1;padding:10px;border:1px solid var(--border);border-radius:10px;background:var(--white);color:var(--text-mid);font-size:0.875rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s}
+    .decline-btn:hover{border-color:var(--red);color:var(--red);background:#fef2f2}
+    /* Upcoming cards */
+    .upcoming-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:12px}
+    .upcoming-name{font-size:0.9375rem;font-weight:700;margin-bottom:4px}
+    .upcoming-meta{font-size:0.8125rem;color:var(--text-muted);margin-bottom:12px}
+    .badge{display:inline-block;font-size:0.6875rem;font-weight:700;padding:3px 10px;border-radius:999px}
+    .badge.pending{background:#fff7ed;color:#d97706}
+    .badge.confirmed{background:#f0fdf4;color:#16a34a}
+    .badge.completed{background:#f0f9ff;color:#0284c7}
+    .badge.cancelled{background:#fef2f2;color:#dc2626}
+    .start-consult-btn{width:100%;margin-top:10px;padding:10px;background:var(--teal);color:white;border:none;border-radius:10px;font-size:0.875rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s}
+    .start-consult-btn:hover{background:var(--teal-dark)}
+    /* Rx cards */
+    .rx-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:16px 20px;margin-bottom:10px}
+    .rx-med{font-size:0.9375rem;font-weight:700;margin-bottom:4px}
+    .rx-dosage{font-size:0.8125rem;color:var(--text-mid);margin-bottom:4px}
+    .rx-notes{font-size:0.8125rem;color:var(--text-muted);font-style:italic}
+    .rx-pat{font-size:0.75rem;color:var(--text-muted);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+    /* Prescription modal */
+    .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;align-items:center;justify-content:center;padding:20px}
+    .overlay.open{display:flex}
+    .modal{background:var(--white);border-radius:20px;padding:32px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
+    .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+    .modal-head h3{font-size:1.25rem;font-weight:800}
+    .modal-close{width:30px;height:30px;border:1px solid var(--border);border-radius:8px;background:none;cursor:pointer;font-size:0.875rem}
+    .modal-sub{font-size:0.8125rem;color:var(--text-muted);margin-bottom:20px}
+    .mf{margin-bottom:16px}
+    .mf label{display:block;font-size:0.8125rem;font-weight:600;margin-bottom:8px}
+    .mf input,.mf textarea{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:0.875rem;font-family:'Inter',sans-serif;color:var(--text);outline:none;background:var(--bg);transition:border-color 0.15s}
+    .mf input:focus,.mf textarea:focus{border-color:var(--blue);background:var(--white)}
+    .mf textarea{resize:vertical;min-height:80px}
+    .modal-btns{display:flex;gap:10px;margin-top:20px}
+    .modal-cancel{flex:1;padding:12px;border:1px solid var(--border);border-radius:10px;background:none;font-size:0.875rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;color:var(--text-mid)}
+    .modal-save{flex:2;padding:12px;background:var(--blue);color:white;border:none;border-radius:10px;font-size:0.875rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
+    .modal-save:hover{background:var(--blue-dark)}
+    .modal-save:disabled{opacity:0.6;cursor:not-allowed}
+    .mmsg{font-size:0.8125rem;padding:10px 14px;border-radius:10px;margin-top:10px;display:none}
+    .merr{background:#fef2f2;border:1px solid #fecaca;color:#dc2626}
+    .mok{background:#f0fdf4;border:1px solid #bbf7d0;color:#16a34a}
+    .empty{text-align:center;padding:40px 20px;color:var(--text-muted)}
+    .empty .e{font-size:2rem;margin-bottom:8px}
+    .empty p{font-size:0.875rem}
+    @media(max-width:900px){.two-col{grid-template-columns:1fr}.stats-row{grid-template-columns:repeat(2,1fr)}}
+  </style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="index.html">
+    <div class="nav-logo-icon">🤍</div>MediConnect
+  </a>
+  <div class="nav-right">
+    <a href="index.html" class="nav-link">Home</a>
+    <button class="notif-bell" title="Notifications">🔔</button>
+    <button class="signout-btn" onclick="signOut()">↪ Sign Out</button>
+  </div>
+</nav>
+
+<div class="a11y-bar">
+  <span class="a11y-label">Accessibility:</span>
+  <div class="a11y-group">
+    <span class="a11y-label">Font</span>
+    <button class="a11y-btn" onclick="A11y.changeFont(-2)">A−</button>
+    <span class="a11y-size" id="fontLabel">16px</span>
+    <button class="a11y-btn" onclick="A11y.changeFont(2)">A+</button>
+  </div>
+  <div class="a11y-sep"></div>
+  <button class="a11y-btn" id="contrastBtn" onclick="A11y.toggleContrast()">🌑 High Contrast</button>
+  <button class="a11y-btn" onclick="A11y.readPage()">🔊 Read Page</button>
+  <div class="a11y-sep"></div>
+  <span class="a11y-label">🌐 Language:</span>
+  <div id="google_translate_element"></div>
+</div>
+
+<div class="page">
+  <div class="doc-profile-card">
+    <div class="doc-big-avatar" id="docAvatarBig"></div>
+    <div style="flex:1">
+      <div class="doc-profile-name" id="docFullName">Dr. Loading...</div>
+      <div class="doc-profile-meta">
+        <div class="doc-meta-item">🩺 <span id="docSpec">Specialization</span></div>
+        <div class="doc-meta-item">⭐ 4.9</div>
+      </div>
+    </div>
+    <div class="doc-profile-right">
+      <button class="signout-btn" onclick="signOut()" style="border:1px solid var(--border);border-radius:10px">↪ Sign Out</button>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-num" id="sTodayAppts">0</div><div class="stat-lab">Today's Appointments</div></div>
+    <div class="stat-card"><div class="stat-icon">🕐</div><div class="stat-num" id="sPending">0</div><div class="stat-lab">Pending Requests</div></div>
+    <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-num" id="sTotalPat">0</div><div class="stat-lab">Total Patients</div></div>
+    <div class="stat-card"><div class="stat-icon">🎥</div><div class="stat-num" id="sConsultations">0</div><div class="stat-lab">Consultations</div></div>
+  </div>
+
+  <div class="section-tabs">
+    <button class="stab active" onclick="showSection('dashboard')" id="tabDash">Dashboard</button>
+    <button class="stab" onclick="showSection('allAppts')" id="tabAll">All Appointments</button>
+    <button class="stab" onclick="showSection('rxSection')" id="tabRx">Prescriptions</button>
+  </div>
+
+  <div id="secDashboard">
+    <div class="two-col">
+      <div>
+        <div class="col-title">Pending Requests</div>
+        <div id="pendingList"></div>
+      </div>
+      <div>
+        <div class="col-title">Upcoming Appointments</div>
+        <div id="upcomingList"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="secAllAppts" style="display:none">
+    <div id="allApptList"></div>
+  </div>
+
+  <div id="secRx" style="display:none">
+    <div id="rxList"></div>
+  </div>
+</div>
+
+<!-- PRESCRIPTION MODAL -->
+<div class="overlay" id="rxOverlay">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>💊 Write Prescription</h3>
+      <button class="modal-close" onclick="closeRxModal()">✕</button>
+    </div>
+    <p class="modal-sub">Fill in medicine details for your patient</p>
+    <div class="mf"><label>Patient</label><input type="text" id="rxPatName" readonly style="background:var(--bg)"/></div>
+    <input type="hidden" id="rxPatientId"/>
+    <input type="hidden" id="rxApptId"/>
+    <div class="mf"><label>Medicine Name *</label><input type="text" id="rxMedicine" placeholder="e.g. Paracetamol 500mg"/></div>
+    <div class="mf"><label>Dosage &amp; Frequency *</label><input type="text" id="rxDosage" placeholder="e.g. 1 tablet twice daily for 5 days"/></div>
+    <div class="mf"><label>Doctor's Notes (optional)</label><textarea id="rxNotes" placeholder="Rest, hydration, follow-up..."></textarea></div>
+    <div class="mmsg merr" id="rxErr"></div>
+    <div class="mmsg mok" id="rxOk"></div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeRxModal()">Cancel</button>
+      <button class="modal-save" id="rxSaveBtn" onclick="savePrescription()">💊 Save Prescription</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── HELPERS ──────────────────────────────────────
+function fmtDate(raw) {
+  if (!raw) return '—';
+  // raw can be "2026-05-22T18:30:00.000Z" or "2026-05-22"
+  const d = new Date(raw);
+  if (isNaN(d)) return raw;
+  // Use UTC parts so timezone doesn't shift the day
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${d.getUTCDate()} ${months[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+}
+
+function initials(name) {
+  return (name || '?').split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2);
+}
+
+// ── AUTH ─────────────────────────────────────────
+const uRaw = localStorage.getItem('user');
+if (!uRaw) location.href = 'login-doctor.html';
+const user = JSON.parse(uRaw);
+if (!user || user.role !== 'doctor') location.href = 'login-doctor.html';
+
+document.getElementById('docFullName').textContent = 'Dr. ' + user.name;
+document.getElementById('docAvatarBig').textContent = initials(user.name);
+if (user.specialization) document.getElementById('docSpec').textContent = user.specialization;
+
+// ── LOAD APPOINTMENTS ────────────────────────────
+let allAppts = [];
+
+async function loadAppointments() {
+  try {
+    const r = await fetch('/api/appointments/doctor/' + user.id);
+    const d = await r.json();
+    allAppts = d.appointments || [];
+    renderStats();
+    renderPending();
+    renderUpcoming();
+    renderAllAppts();
+  } catch {
+    document.getElementById('pendingList').innerHTML = '<div class="empty"><p>Error loading appointments</p></div>';
+  }
+}
+
+function renderStats() {
+  const today = new Date().toISOString().split('T')[0];
+  const todayAppts = allAppts.filter(a => {
+    const aDate = new Date(a.date).toISOString().split('T')[0];
+    return aDate === today && a.status === 'confirmed';
+  });
+  const pending   = allAppts.filter(a => a.status === 'pending');
+  const patients  = [...new Set(allAppts.map(a => a.patient_id))];
+  const completed = allAppts.filter(a => a.status === 'completed');
+
+  document.getElementById('sTodayAppts').textContent   = todayAppts.length;
+  document.getElementById('sPending').textContent      = pending.length;
+  document.getElementById('sTotalPat').textContent     = patients.length;
+  document.getElementById('sConsultations').textContent = completed.length;
+}
+
+function renderPending() {
+  const el = document.getElementById('pendingList');
+  const pending = allAppts.filter(a => a.status === 'pending');
+  if (pending.length === 0) {
+    el.innerHTML = '<div class="empty"><div class="e">✅</div><p>No pending requests</p></div>';
+    return;
+  }
+  el.innerHTML = pending.map(a => `
+    <div class="req-card">
+      <div class="req-top">
+        <div class="req-avatar">${initials(a.patient_name)}</div>
+        <div>
+          <div class="req-name">${a.patient_name}</div>
+          <div class="req-meta">📅 ${fmtDate(a.date)} &nbsp;🕐 ${a.time}</div>
+        </div>
+      </div>
+      <div class="req-actions">
+        <button class="accept-btn" onclick="updateStatus(${a.id}, 'confirmed')">✓ Accept</button>
+        <button class="decline-btn" onclick="updateStatus(${a.id}, 'cancelled')">✗ Decline</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderUpcoming() {
+  const el = document.getElementById('upcomingList');
+  const upcoming = allAppts.filter(a => a.status === 'confirmed');
+  if (upcoming.length === 0) {
+    el.innerHTML = '<div class="empty"><div class="e">📅</div><p>No upcoming appointments</p></div>';
+    return;
+  }
+  el.innerHTML = upcoming.map(a => `
+    <div class="upcoming-card">
+      <div class="upcoming-name">${a.patient_name}</div>
+      <div class="upcoming-meta">📅 ${fmtDate(a.date)} &nbsp;🕐 ${a.time}</div>
+      <span class="badge confirmed">Confirmed</span>
+      <button class="start-consult-btn" onclick="location.href='video.html'">🎥 Start Consultation</button>
+    </div>
+  `).join('');
+}
+
+function renderAllAppts() {
+  const el = document.getElementById('allApptList');
+  if (allAppts.length === 0) {
+    el.innerHTML = '<div class="empty"><p>No appointments yet</p></div>';
+    return;
+  }
+  el.innerHTML = allAppts.map(a => `
+    <div class="upcoming-card" style="display:flex;align-items:center;gap:16px">
+      <div class="req-avatar">${initials(a.patient_name)}</div>
+      <div style="flex:1">
+        <div class="upcoming-name">${a.patient_name}</div>
+        <div class="upcoming-meta">📅 ${fmtDate(a.date)} &nbsp;🕐 ${a.time}</div>
+      </div>
+      <span class="badge ${a.status}">${a.status.charAt(0).toUpperCase()+a.status.slice(1)}</span>
+      ${a.status === 'confirmed' ? `<button class="accept-btn" style="width:auto;padding:8px 14px;font-size:0.8125rem" onclick="openRxModal(${a.patient_id},'${a.patient_name}',${a.id})">💊 Rx</button>` : ''}
+    </div>
+  `).join('');
+}
+
+// ── UPDATE STATUS ────────────────────────────────
+async function updateStatus(id, status) {
+  try {
+    const r = await fetch('/api/appointments/' + id + '/status', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status })
+    });
+    const d = await r.json();
+    if (d.success) {
+      loadAppointments();
+    } else {
+      alert(d.message);
+    }
+  } catch { alert('Server error'); }
+}
+
+// ── LOAD PRESCRIPTIONS ───────────────────────────
+async function loadPrescriptions() {
+  const el = document.getElementById('rxList');
+  try {
+    const r = await fetch('/api/prescriptions/doctor/' + user.id);
+    const d = await r.json();
+    const rx = d.prescriptions || [];
+    if (rx.length === 0) {
+      el.innerHTML = '<div class="empty"><div class="e">💊</div><p>No prescriptions written yet</p></div>';
+      return;
+    }
+    el.innerHTML = rx.map(p => `
+      <div class="rx-card">
+        <div class="rx-med">💊 ${p.medicine}</div>
+        <div class="rx-dosage">${p.dosage}</div>
+        ${p.notes ? `<div class="rx-notes">${p.notes}</div>` : ''}
+        <div class="rx-pat">Patient: ${p.patient_name || '—'} &nbsp;·&nbsp; ${fmtDate(p.created_at)}</div>
+      </div>
+    `).join('');
+  } catch {
+    el.innerHTML = '<div class="empty"><p>Error loading prescriptions</p></div>';
+  }
+}
+
+// ── RX MODAL ─────────────────────────────────────
+function openRxModal(patient_id, patient_name, appt_id) {
+  document.getElementById('rxPatientId').value = patient_id;
+  document.getElementById('rxApptId').value    = appt_id || '';
+  document.getElementById('rxPatName').value   = patient_name;
+  document.getElementById('rxMedicine').value  = '';
+  document.getElementById('rxDosage').value    = '';
+  document.getElementById('rxNotes').value     = '';
+  document.getElementById('rxErr').style.display = 'none';
+  document.getElementById('rxOk').style.display  = 'none';
+  document.getElementById('rxOverlay').classList.add('open');
+}
+
+function closeRxModal() {
+  document.getElementById('rxOverlay').classList.remove('open');
+}
+
+async function savePrescription() {
+  const medicine   = document.getElementById('rxMedicine').value.trim();
+  const dosage     = document.getElementById('rxDosage').value.trim();
+  const notes      = document.getElementById('rxNotes').value.trim();
+  const patient_id = document.getElementById('rxPatientId').value;
+  const err        = document.getElementById('rxErr');
+  const ok         = document.getElementById('rxOk');
+  err.style.display = ok.style.display = 'none';
+
+  if (!medicine || !dosage) {
+    err.textContent = 'Medicine name and dosage are required.';
+    err.style.display = 'block';
+    return;
+  }
+
+  const btn = document.getElementById('rxSaveBtn');
+  btn.disabled = true; btn.textContent = 'Saving...';
+
+  try {
+    const r = await fetch('/api/prescriptions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ doctor_id: user.id, patient_id, medicine, dosage, notes })
+    });
+    const d = await r.json();
+    if (d.success) {
+      ok.textContent = 'Prescription saved!'; ok.style.display = 'block';
+      loadPrescriptions();
+      setTimeout(closeRxModal, 1200);
+    } else {
+      err.textContent = d.message || 'Failed to save.'; err.style.display = 'block';
+    }
+  } catch {
+    err.textContent = 'Server error.'; err.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.textContent = '💊 Save Prescription';
+  }
+}
+
+// ── SECTION SWITCH ───────────────────────────────
+function showSection(sec) {
+  const map = { dashboard: 'secDashboard', allAppts: 'secAllAppts', rxSection: 'secRx' };
+  const tabMap = { dashboard: 'tabDash', allAppts: 'tabAll', rxSection: 'tabRx' };
+  Object.entries(map).forEach(([key, id]) => {
+    document.getElementById(id).style.display = key === sec ? '' : 'none';
+  });
+  Object.entries(tabMap).forEach(([key, id]) => {
+    document.getElementById(id).classList.toggle('active', key === sec);
+  });
+  if (sec === 'rxSection') loadPrescriptions();
+}
+
+// ── SIGN OUT ─────────────────────────────────────
+function signOut() {
+  localStorage.removeItem('user');
+  location.href = 'login-doctor.html';
+}
+
+// ── A11y ─────────────────────────────────────────
+const A11y = {
+  _size: 16,
+  changeFont(delta) {
+    this._size = Math.max(12, Math.min(24, this._size + delta));
+    document.documentElement.style.fontSize = this._size + 'px';
+    document.getElementById('fontLabel').textContent = this._size + 'px';
+  },
+  toggleContrast() {
+    document.body.classList.toggle('high-contrast');
+    document.getElementById('contrastBtn').textContent =
+      document.body.classList.contains('high-contrast') ? '☀️ Normal' : '🌑 High Contrast';
+  },
+  readPage() {
+    if (!window.speechSynthesis) return alert('TTS not supported.');
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(new SpeechSynthesisUtterance(document.body.innerText));
+  }
+};
+
+document.getElementById('rxOverlay').addEventListener('click', e => {
+  if (e.target.id === 'rxOverlay') closeRxModal();
+});
+
+// ── INIT ─────────────────────────────────────────
+loadAppointments();
+</script>
+<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</body>
+</html>
